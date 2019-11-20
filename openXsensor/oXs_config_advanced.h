@@ -136,7 +136,7 @@
 //#define B_COEFFICIENT 3950 // B coefficient of NTC
 
 // ***** 6.5 - Current parameters  *****
-#define PIN_CURRENTSENSOR   7  // uncomment when Arduino pin is used to measure the voltage provided by a current sensor
+//#define PIN_CURRENTSENSOR   7  // uncomment when Arduino pin is used to measure the voltage provided by a current sensor
 #define MVOLT_AT_ZERO_AMP              2500    // in millivolt
 #define MVOLT_PER_AMP                  60      // in milliVolt per Amp
 #define RESISTOR_TO_GROUND_FOR_CURRENT  19.8   // put as comment or set to 0 if no divider is used
@@ -355,5 +355,3 @@ struct ONE_MEASUREMENT {
 
 
 #endif// End define OXS_CONFIG_ADVANCED_h
-
-

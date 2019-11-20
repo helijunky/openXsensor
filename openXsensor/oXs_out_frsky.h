@@ -17,7 +17,8 @@
 //#define DEBUG_SETUP_PIN 5  // allows to send a pulse on an output pin during the enlapsed time that Arduino runs the set up 
 //#define DEBUG_SPORT_PIN 6  // allows to send a pulse on an output pin during the enlapsed time that Arduino checks for SPORT 
 
-#define INTERVAL_FRAME1 200
+//#define INTERVAL_FRAME1 200
+#define INTERVAL_FRAME1 2000  // Manux: update rate 2000ms funktioniert leider nicht
 #define INTERVAL_FRAME2 1000  // used by GPS
 
 // default SPORT_SENSOR_ID
@@ -284,7 +285,8 @@ extern struct ONE_MEASUREMENT yaw ;
 extern struct ONE_MEASUREMENT pitch ;
 extern struct ONE_MEASUREMENT roll ;
 
-extern struct ONE_MEASUREMENT ds1820TempStruct ;
+extern struct ONE_MEASUREMENT ds1820Temp1Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp2Struct ;
 
 #ifdef MEASURE_RPM
 extern volatile uint16_t RpmValue ;
@@ -475,9 +477,3 @@ uint32_t millis( void ) ;
 #endif // Enf of ndef MULTIPLEX
 
 #endif // OXS_OUT_h
-
-
-
-
-
-

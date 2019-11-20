@@ -82,13 +82,13 @@
     || ( T1_SOURCE == VOLT_1) || ( T1_SOURCE == VOLT_2) || ( T1_SOURCE == VOLT_3) || ( T1_SOURCE == VOLT_4) || ( T1_SOURCE == VOLT_5) || ( T1_SOURCE == VOLT_6) \
     || ( T1_SOURCE == ADS_VOLT_1) || ( T1_SOURCE == ADS_VOLT_2) || ( T1_SOURCE == ADS_VOLT_3) || ( T1_SOURCE == ADS_VOLT_4) \
     || ( T1_SOURCE == TEST_1) || ( T1_SOURCE == TEST_2) || ( T1_SOURCE == TEST_3) || ( T1_SOURCE == DS1820) ) )
- #error When defined, T1_SOURCE must be one of following values TEST_1, TEST_2, TEST_3, GLIDER_RATIO , SECONDS_SINCE_T0 ,AVERAGE_VSPEED_SINCE_TO , SENSITIVITY , PPM , VOLT_1, VOLT_2, VOLT_3, VOLT_4, VOLT_5, VOLT_6, ADS_VOLT_1, ADS_VOLT_2, ADS_VOLT_3, ADS_VOLT_4, 
+ #error When defined, T1_SOURCE must be one of following values TEST_1, TEST_2, TEST_3, GLIDER_RATIO , SECONDS_SINCE_T0 ,AVERAGE_VSPEED_SINCE_TO , SENSITIVITY , PPM , VOLT_1, VOLT_2, VOLT_3, VOLT_4, VOLT_5, VOLT_6, ADS_VOLT_1, ADS_VOLT_2, ADS_VOLT_3, ADS_VOLT_4, DS1820,
 #endif
 #if defined( T2_SOURCE ) && ( !  ( ( T2_SOURCE == PPM) || ( T2_SOURCE == GLIDER_RATIO) || ( T2_SOURCE == SECONDS_SINCE_T0) || ( T2_SOURCE == AVERAGE_VSPEED_SINCE_TO) || ( T2_SOURCE == SENSITIVITY) \
     || ( T2_SOURCE == VOLT_1) || ( T2_SOURCE == VOLT_2) || ( T2_SOURCE == VOLT_3) || ( T2_SOURCE == VOLT_4) || ( T2_SOURCE == VOLT_5) || ( T2_SOURCE == VOLT_6)\
     || ( T2_SOURCE == ADS_VOLT_1) || ( T2_SOURCE == ADS_VOLT_2) || ( T2_SOURCE == ADS_VOLT_3) || ( T2_SOURCE == ADS_VOLT_4) \
-    || ( T2_SOURCE == TEST_1) || ( T2_SOURCE == TEST_2) || ( T2_SOURCE == TEST_3 || ( T1_SOURCE == DS1820) ) ) )
- #error When defined, T2_SOURCE must be one of following values TEST_1, TEST_2, TEST_3, GLIDER_RATIO , SECONDS_SINCE_T0 ,AVERAGE_VSPEED_SINCE_TO , SENSITIVITY , PPM , VOLT_1, VOLT_2, VOLT_3, VOLT_4, VOLT_5, VOLT_6, ADS_VOLT_1, ADS_VOLT_2, ADS_VOLT_3, ADS_VOLT_4, 
+    || ( T2_SOURCE == TEST_1) || ( T2_SOURCE == TEST_2) || ( T2_SOURCE == TEST_3 || ( T2_SOURCE == DS1820) ) ) )
+ #error When defined, T2_SOURCE must be one of following values TEST_1, TEST_2, TEST_3, GLIDER_RATIO , SECONDS_SINCE_T0 ,AVERAGE_VSPEED_SINCE_TO , SENSITIVITY , PPM , VOLT_1, VOLT_2, VOLT_3, VOLT_4, VOLT_5, VOLT_6, ADS_VOLT_1, ADS_VOLT_2, ADS_VOLT_3, ADS_VOLT_4, DS1820,
 #endif
 #if defined ( ADS_AIRSPEED_BASED_ON ) && ( ! ( ( ADS_AIRSPEED_BASED_ON == ADS_VOLT_1) || ( ADS_AIRSPEED_BASED_ON == ADS_VOLT_2) || ( ADS_AIRSPEED_BASED_ON == ADS_VOLT_3) || ( ADS_AIRSPEED_BASED_ON == ADS_VOLT_4) ) )
  #error When defined, ADS_AIRSPEED_BASED_ON must be one of following values ADS_VOLT_1, ADS_VOLT_2, ADS_VOLT_3, ADS_VOLT_4
@@ -226,7 +226,8 @@ boolean gliderRatioPpmOn = false ;
 #endif // end of USE_6050
  
 #ifdef ONE_WIRE_BUS
- struct ONE_MEASUREMENT ds1820TempStruct ; 
+ struct ONE_MEASUREMENT ds1820Temp1Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp2Struct ; 
 #endif
 
 
@@ -442,7 +443,8 @@ extern uint8_t  volatile TxDataIdx ;
  int  resolution = 10;
  unsigned long lastTempRequest = 0;
  int  ds1820DelayInMillis = 0;
- float ds1820Temp = 0.0;
+ float ds1820Temp1 = 0.0;
+ float ds1820Temp2 = 0.0;
 #endif
 
 //Create a class used for telemetry ;content of class depends on the selected protocol (managed via #ifdef in different files)
@@ -866,12 +868,15 @@ void readSensors() {
 #ifdef ONE_WIRE_BUS
   if (millis() - lastTempRequest >= ds1820DelayInMillis) // waited long enough??
   {
-	  ds1820Temp = sensors.getTempCByIndex(0);
+    ds1820Temp1 = sensors.getTempCByIndex(0);
+    ds1820Temp2 = sensors.getTempCByIndex(1);
 	  sensors.requestTemperatures(); 
     lastTempRequest = millis();
     /*#ifdef DEBUG
-      Serial.print(F("T="));    
-      Serial.println( ds1820Temp );
+      Serial.print(F("T1="));    
+      Serial.println( ds1820Temp1 );
+      Serial.print(F("T2="));    
+      Serial.println( ds1820Temp2 );
     #endif*/
   }
 #endif
@@ -1163,8 +1168,10 @@ static uint32_t previousYawRateMillis ;
 #endif
 
 #if defined ( ONE_WIRE_BUS )
-	ds1820TempStruct.value = (uint32_t)ds1820Temp;
-	ds1820TempStruct.available = true;
+  ds1820Temp1Struct.value = (uint32_t)ds1820Temp1;
+  ds1820Temp1Struct.available = true;
+  ds1820Temp2Struct.value = (uint32_t)ds1820Temp2;
+  ds1820Temp2Struct.available = true;
 #endif
 
 //  test1.value = oXs_MS5611.varioData.absoluteAlt.value/10 ;
@@ -1989,8 +1996,10 @@ void OutputToSerial(){
 #endif // PIN_CURRENTSENSOR
 
 #ifdef ONE_WIRE_BUS
-  Serial.print(F(" ;T="));    
-  Serial.print( ds1820Temp );
+  Serial.print(F(" ;T1="));    
+  Serial.print( ds1820Temp1 );
+  Serial.print(F(" ;T2="));    
+  Serial.print( ds1820Temp2 );
 #endif
 
 #ifdef HOTT
@@ -2009,7 +2018,3 @@ int freeRam () {
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 #endif // End DEBUG
-
-
-
-

@@ -352,7 +352,7 @@ void initMeasurement() {
 #elif defined(T1_SOURCE) && defined(ADS_MEASURE) && ( T1_SOURCE == ADS_VOLT_1 || T1_SOURCE == ADS_VOLT_2 || T1_SOURCE == ADS_VOLT_3 || T1_SOURCE == ADS_VOLT_4 )
     p_measurements[16] =  &ads_Conv[T1_SOURCE - ADS_VOLT_1];
 #elif defined(T1_SOURCE) && defined(ONE_WIRE_BUS)
-    p_measurements[16] =  &ds1820TempStruct;
+    p_measurements[16] =  &ds1820Temp1Struct;
 #else
    p_measurements[16] = &no_data ; // T1 
 #endif
@@ -379,7 +379,7 @@ void initMeasurement() {
 #elif defined(T2_SOURCE) && defined(ADS_MEASURE) && ( T2_SOURCE == ADS_VOLT_1 || T2_SOURCE == ADS_VOLT_2 || T2_SOURCE == ADS_VOLT_3 || T2_SOURCE == ADS_VOLT_4 )
     p_measurements[17] =  &ads_Conv[T2_SOURCE - ADS_VOLT_1];
 #elif defined(T2_SOURCE) && defined(ONE_WIRE_BUS)
-    p_measurements[17] =  &ds1820TempStruct;
+    p_measurements[17] =  &ds1820Temp2Struct;
 #else
    p_measurements[17] = &no_data ; // T2 
 #endif
@@ -748,7 +748,7 @@ void OXS_OUT::SendFrame1(){
 #elif defined(T1_SOURCE) && defined(ADS_MEASURE) &&  ( (T1_SOURCE == ADS_VOLT_1) || (T1_SOURCE == ADS_VOLT_2) || (T1_SOURCE == ADS_VOLT_3) || (T1_SOURCE == ADS_VOLT_4)  )
     SendValue( FRSKY_USERDATA_TEMP1 ,  (int16_t) (ads_Conv[T1_SOURCE - ADS_VOLT_1 ].value ) ) ; 
 #elif defined(T1_SOURCE) && ( T1_SOURCE == DS1820)
-    SendValue( FRSKY_USERDATA_TEMP1 , (int16_t) ds1820TempStruct.value ) ; 
+    SendValue( FRSKY_USERDATA_TEMP1 , (int16_t) ds1820Temp1Struct.value ) ; 
 #endif
 
 
@@ -774,7 +774,7 @@ void OXS_OUT::SendFrame1(){
 #elif defined(T2_SOURCE) && defined(ADS_MEASURE) &&  ( (T2_SOURCE == ADS_VOLT_1) || (T2_SOURCE == ADS_VOLT_2) || (T2_SOURCE == ADS_VOLT_3) || (T2_SOURCE == ADS_VOLT_4)  )
     SendValue( FRSKY_USERDATA_TEMP2 ,  (int16_t) (ads_Conv[T2_SOURCE - ADS_VOLT_1 ].value ) ) ;  
 #elif defined(T2_SOURCE) && ( T2_SOURCE == DS1820)
-    SendValue( FRSKY_USERDATA_TEMP2 , (int16_t) ds1820TempStruct.value ) ; 	
+    SendValue( FRSKY_USERDATA_TEMP2 , ((int16_t) ds1820Temp2Struct.value ) ; 	
 #endif
    
 // airspeed                                        // not implemented in Hub protocol; to add in T1 or T2
@@ -1891,4 +1891,3 @@ void startHubTransmit()
 
 //********************************** End of code to handle the UART communication with the receiver
 #endif   //End of FRSKY protocols
-
