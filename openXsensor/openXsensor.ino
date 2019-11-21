@@ -130,8 +130,8 @@ extern unsigned long millis( void ) ;
 //static unsigned long extendedMicros ;
 
 #ifdef DEBUG_BLINK  // this does not require that DEBUG is active.; Use only one of the blink 
-   //DEBUG_BLINK_MAINLOOP
-   //DEBUG_BLINK_CLIMBRATE
+  #define DEBUG_BLINK_MAINLOOP
+  //#define DEBUG_BLINK_CLIMBRATE
 #endif
 
 #ifdef DEBUG
@@ -693,6 +693,7 @@ void setup(){
 //                                Main loop                                               ***
 //*******************************************************************************************
 void loop(){ 
+  delay(500);
 /*
 uint8_t flagMillis ;
 static uint32_t lastLoop20Millis ;
@@ -729,7 +730,7 @@ if ( currentLoopMillis - lastLoop500Millis > 500 ) {
   Serial.println(millis());
 #endif 
 #ifdef DEBUG_BLINK_MAINLOOP
-    blinkLed(1) ;
+    blinkLed(10) ;
 #endif
   //extern volatile uint8_t state ; 
   //Serial.println(state) ;

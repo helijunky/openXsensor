@@ -300,13 +300,12 @@ void   blinkLed(uint8_t blinkDelay) {
   static unsigned long nextMillisBlink ;
   if (millis() > nextMillisBlink ) {
     if ( digitalRead( PIN_LED ) ) {
-      digitalWrite( PIN_LED , LOW ) ;
+      digitalWrite( PIN_LED, LOW );
+      nextMillisBlink = millis() + (unsigned long) blinkDelay * 100;
     } else {
-      digitalWrite( PIN_LED , HIGH ) ;      
+      digitalWrite( PIN_LED, HIGH );
+      nextMillisBlink = millis() + 50;      
     } 
-    nextMillisBlink += (unsigned long) blinkDelay * 100 ; 
   }  
 }  
 #endif
-
-
