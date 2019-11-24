@@ -5,10 +5,10 @@
 
 #ifdef DEBUG
 // ************************* Several parameters to help debugging
-//#define DEBUG_LOAD_SPORT
-//#define DEBUG_STATE 
-//#define DEBUG_SPORT_RECEIVED
-//#define DEBUGSENDDATA
+#define DEBUG_LOAD_SPORT
+#define DEBUG_STATE 
+#define DEBUG_SPORT_RECEIVED
+#define DEBUGSENDDATA
 //#define DEBUGSENDSENSITIVITY
 //#define DEBUGNEXTVALUETYPE
 //#define DEBUGSENDDATADELAY
@@ -206,6 +206,8 @@ int32_t dataValue[6] ;   // keep for each sensor id the next value to be sent
 uint8_t dataId[6] ;      // keep for each sensor id the Id of next field to be sent
 uint8_t sensorSeq  ;
 uint8_t sensorIsr  ;
+uint8_t rpm_id = DATA_ID_RPM_1;         // cycles through the various rpm ids after each transmission
+uint8_t rpm_id_counter = 0;
 
 struct ONE_MEASUREMENT no_data = { 0, 0 } ; 
 
@@ -352,7 +354,7 @@ void initMeasurement() {
 #elif defined(T1_SOURCE) && defined(ADS_MEASURE) && ( T1_SOURCE == ADS_VOLT_1 || T1_SOURCE == ADS_VOLT_2 || T1_SOURCE == ADS_VOLT_3 || T1_SOURCE == ADS_VOLT_4 )
     p_measurements[16] =  &ads_Conv[T1_SOURCE - ADS_VOLT_1];
 #elif defined(T1_SOURCE) && defined(ONE_WIRE_BUS)
-    p_measurements[16] =  &ds1820Temp1Struct;
+    p_measurements[16] = &ds1820Temp1Struct;
 #else
    p_measurements[16] = &no_data ; // T1 
 #endif
@@ -379,7 +381,7 @@ void initMeasurement() {
 #elif defined(T2_SOURCE) && defined(ADS_MEASURE) && ( T2_SOURCE == ADS_VOLT_1 || T2_SOURCE == ADS_VOLT_2 || T2_SOURCE == ADS_VOLT_3 || T2_SOURCE == ADS_VOLT_4 )
     p_measurements[17] =  &ads_Conv[T2_SOURCE - ADS_VOLT_1];
 #elif defined(T2_SOURCE) && defined(ONE_WIRE_BUS)
-    p_measurements[17] =  &ds1820Temp2Struct;
+    p_measurements[17] = &ds1820Temp2Struct;
 #else
    p_measurements[17] = &no_data ; // T2 
 #endif
@@ -482,11 +484,11 @@ void initMeasurement() {
 void OXS_OUT::sendSportData()
 {  
 #ifdef DEBUG_STATE
-                  Serial.print("State "); Serial.print(state,HEX) ; Serial.print(" LastRx "); Serial.print(LastRx,HEX) ; Serial.print(" prevLastRx "); Serial.print(prevLastRx,HEX) ;
+                  Serial.print("sendSportData(): State "); Serial.print(state,HEX) ; Serial.print(" LastRx "); Serial.print(LastRx,HEX) ; Serial.print(" prevLastRx "); Serial.print(prevLastRx,HEX) ;
                   Serial.print(" sensorIsr "); Serial.println(sensorIsr,HEX) ; 
 #endif
-                                                                          
-                                                                          // first we calculate fields that are used only by SPORT
+
+// first we calculate fields that are used only by SPORT
 #if defined(VFAS_SOURCE)
   #if defined(PIN_VOLTAGE) &&  ( (VFAS_SOURCE == VOLT_1) || (VFAS_SOURCE == VOLT_2) || (VFAS_SOURCE == VOLT_3) || (VFAS_SOURCE == VOLT_4) || (VFAS_SOURCE == VOLT_5) || (VFAS_SOURCE == VOLT_6) )
    if ( (!vfas.available) && ( oXs_Voltage.voltageData.mVolt[VFAS_SOURCE - VOLT_1].available) ){
@@ -583,6 +585,7 @@ void OXS_OUT::sendSportData()
                 if ( p_measurements[currFieldIdx_]->available  ){                                                // if data of current index of sensor is available
                   p_measurements[currFieldIdx_]->available = 0 ;                                                         // mark the data as not available
                   dataValue[sensorSeq] =  p_measurements[currFieldIdx_]->value ;                                         // store the value in a buffer
+                  //dataValue[sensorSeq] = rpm_id ;                                         // testing only
                   dataId[sensorSeq] = fieldId[currFieldIdx_] ;                                                   // mark the data from this sensor as available
                   cli() ;
                   frskyStatus &= ~(1<< sensorSeq) ;                                               // says that data is loaded by resetting one bit
@@ -1529,6 +1532,35 @@ ISR(TIMER1_COMPA_vect)
                 }
                 else  // 8 bytes have been send
                 {
+                  // jump to next rpm_id after each transmission
+                  if (++rpm_id_counter >= 2) {
+                    rpm_id_counter = 0; 
+                    if (rpm_id == DATA_ID_RPM_4) {
+                      rpm_id = DATA_ID_RPM_1;
+                      p_measurements[16] = &ds1820Temp1Struct;
+                      p_measurements[17] = &ds1820Temp2Struct;
+                    }
+                    else if (rpm_id == DATA_ID_RPM_1) {
+                      rpm_id = DATA_ID_RPM_2;
+                      p_measurements[16] = &ds1820Temp3Struct;
+                      p_measurements[17] = &ds1820Temp4Struct;
+                    }
+                    else if (rpm_id == DATA_ID_RPM_2) {
+                      rpm_id = DATA_ID_RPM_3;
+                      p_measurements[16] = &ds1820Temp5Struct;
+                      p_measurements[17] = &ds1820Temp6Struct;
+                    }
+                    else if (rpm_id == DATA_ID_RPM_3) {
+                      rpm_id = DATA_ID_RPM_4;
+                      p_measurements[16] = &ds1820Temp7Struct;
+                      p_measurements[17] = &ds1820Temp8Struct;
+                    }
+                  }
+
+#ifdef DEBUG
+                  Serial.print("Transmission complete. rpm_id="); Serial.println(rpm_id,HEX);
+#endif
+                
                   frskyStatus |=  1 << sensorIsr ;              // set the bit relative to sensorIsr to say that a new data has to be loaded for sensorIsr.
                   state = WAITING ;
                   OCR1A += DELAY_3500 ;   // 3.5mS gap before listening
@@ -1566,13 +1598,19 @@ ISR(TIMER1_COMPA_vect)
 #endif
 
                         if ( LastRx == 0x7E ) {
+                          if (SwUartRXData == rpm_id) {
+                            sensorIsr = 4;
+#ifdef DEBUG_SPORT_RECEIVED
+                            Serial.print("ISR RECEIVE rpm_id="); Serial.println(SwUartRXData,HEX);
+#endif                              
+                          }
+                          else {
                             switch (SwUartRXData ) {
-
 #define  VARIO_ID        DATA_ID_VARIO       // replace those values by the right on
 #define  CELL_ID         DATA_ID_FLVSS
 #define  CURRENT_ID      DATA_ID_FAS
 #define  GPS_ID          DATA_ID_GPS
-#define  RPM_ID          DATA_ID_RPM
+//#define  RPM_ID          DATA_ID_RPM
 #define  ACC_ID          DATA_ID_ACC
 #define  TX_ID           DATA_ID_TX          // this ID is used when TX sent data to RX with a LUA script ; it requires that LUA script uses the same parameters 
 #define SENSOR_ISR_FOR_TX_ID 0XF0          // this value says that we already received a byte == TX_ID
@@ -1585,8 +1623,9 @@ ISR(TIMER1_COMPA_vect)
                                 sensorIsr = 2 ; break ;
                               case GPS_ID :
                                 sensorIsr = 3 ; break ;
-                              case RPM_ID :
-                                sensorIsr = 4 ; break ;
+                              //case RPM_ID :
+                              //  sensorIsr = 4 ; break ;
+                              
                               case ACC_ID :
                                 sensorIsr = 5 ; break ;
                               case TX_ID :
@@ -1594,6 +1633,7 @@ ISR(TIMER1_COMPA_vect)
                                 sensorIsr = SENSOR_ISR_FOR_TX_ID ; break ;  // this value says that an ID related to a frame sent by Tx has been received; take care that it is perhaps just a pulling from RX without Tx frame. 
                               default : 
                                 sensorIsr = 128 ;  
+                             }
                             }
                             if ( ( sensorIsr < 6 ) && ( ( frskyStatus & ( 1 << sensorIsr )) == 0 ) ) {    // If this sensor ID is supported by oXs and oXs has prepared data to reply data in dataValue[] for this sensorSeq    
                                      // if ( sportDataLock == 0 ) {
@@ -1612,7 +1652,7 @@ ISR(TIMER1_COMPA_vect)
                             } else  { // No data are loaded (so there is no data yet available or oXs does not have to reply to this ID)
                                   state = WAITING ;       // Wait for idle time
                                   OCR1A += DELAY_3500 ;   // 3.5mS gap before listening
-                            } 
+                            }
                         }    // end receive 1 byte and previous was equal to 0x7E
                         else if ( SwUartRXData == 0x7E) {      // reset sensorIsr when 0X7E is received (stop receiving data from Tx) and listen to next byte
                             sensorIsr = 128 ;                  // reset sensorIsr when 0X7E is received (stop receiving data from Tx)

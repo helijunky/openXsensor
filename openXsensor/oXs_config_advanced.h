@@ -24,7 +24,11 @@
 #define         DATA_ID_FLVSS  0xA1  //          1 used for Cell values
 #define         DATA_ID_FAS    0x22  //          2 used for vfas , current and fuel
 #define         DATA_ID_GPS    0x83  //          3 used for GPS data
-#define         DATA_ID_RPM    0xE4  //          4 used for rpm, T1, T2, airspeed
+//#define         DATA_ID_RPM    0xE4  //          4 used for rpm, T1, T2, airspeed
+#define         DATA_ID_RPM_1    0xE9  //          4 used for rpm, T1, T2, airspeed
+#define         DATA_ID_RPM_2    0x6A  //          4 used for rpm, T3, T4, airspeed
+#define         DATA_ID_RPM_3   0xCB  //          4 used for rpm, T5, T6, airspeed
+#define         DATA_ID_RPM_4    0xAC  //          4 used for rpm, T7, T8, airspeed
 #define         DATA_ID_ACC    0x67  //          7 used for Acc X, Y, Z
 #define         DATA_ID_TX     0x0D  //           used to read data sent by Tx in order to adjust some oXs parameters (flow sensor or ppm)
 // --------- 2 - Data to transmit ---------                   
@@ -218,7 +222,7 @@
 
 // --------- xx - Reserved for developer. DEBUG must be activated here when we want to debug one or several functions in some other files. ---------
 //#define DEBUG
-#define DEBUG_BLINK   // use by developper in order to blink the led without using uart for debugging
+//#define DEBUG_BLINK   // use by developper in order to blink the led without using uart for debugging
 
 
 #define BASED_ON_AIRSPEED 0

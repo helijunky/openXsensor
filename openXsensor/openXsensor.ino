@@ -228,6 +228,12 @@ boolean gliderRatioPpmOn = false ;
 #ifdef ONE_WIRE_BUS
  struct ONE_MEASUREMENT ds1820Temp1Struct ; 
  struct ONE_MEASUREMENT ds1820Temp2Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp3Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp4Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp5Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp6Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp7Struct ; 
+ struct ONE_MEASUREMENT ds1820Temp8Struct ; 
 #endif
 
 
@@ -445,6 +451,12 @@ extern uint8_t  volatile TxDataIdx ;
  int  ds1820DelayInMillis = 0;
  float ds1820Temp1 = 0.0;
  float ds1820Temp2 = 0.0;
+ float ds1820Temp3 = 0.0;
+ float ds1820Temp4 = 0.0;
+ float ds1820Temp5 = 0.0;
+ float ds1820Temp6 = 0.0;
+ float ds1820Temp7 = 0.0;
+ float ds1820Temp8 = 0.0;
 #endif
 
 //Create a class used for telemetry ;content of class depends on the selected protocol (managed via #ifdef in different files)
@@ -693,7 +705,7 @@ void setup(){
 //                                Main loop                                               ***
 //*******************************************************************************************
 void loop(){ 
-  delay(500);
+  //delay(100);
 /*
 uint8_t flagMillis ;
 static uint32_t lastLoop20Millis ;
@@ -871,13 +883,31 @@ void readSensors() {
   {
     ds1820Temp1 = sensors.getTempCByIndex(0);
     ds1820Temp2 = sensors.getTempCByIndex(1);
+    ds1820Temp3 = sensors.getTempCByIndex(2);
+    ds1820Temp4 = sensors.getTempCByIndex(3);
+    ds1820Temp5 = sensors.getTempCByIndex(4);
+    ds1820Temp6 = sensors.getTempCByIndex(5);
+    ds1820Temp7 = sensors.getTempCByIndex(6);
+    ds1820Temp8 = sensors.getTempCByIndex(7);
 	  sensors.requestTemperatures(); 
     lastTempRequest = millis();
-    /*#ifdef DEBUG
+    #ifdef DEBUG
       Serial.print(F("T1="));    
       Serial.println( ds1820Temp1 );
       Serial.print(F("T2="));    
       Serial.println( ds1820Temp2 );
+      Serial.print(F("T3="));    
+      Serial.println( ds1820Temp3 );
+      Serial.print(F("T4="));    
+      Serial.println( ds1820Temp4 );      
+      Serial.print(F("T5="));    
+      Serial.println( ds1820Temp5 );
+      Serial.print(F("T6="));    
+      Serial.println( ds1820Temp6 );
+      Serial.print(F("T7="));    
+      Serial.println( ds1820Temp7 );
+      Serial.print(F("T8="));    
+      Serial.println( ds1820Temp8 );      
     #endif*/
   }
 #endif
@@ -1173,6 +1203,18 @@ static uint32_t previousYawRateMillis ;
   ds1820Temp1Struct.available = true;
   ds1820Temp2Struct.value = (uint32_t)ds1820Temp2;
   ds1820Temp2Struct.available = true;
+  ds1820Temp3Struct.value = (uint32_t)ds1820Temp3;
+  ds1820Temp3Struct.available = true;
+  ds1820Temp4Struct.value = (uint32_t)ds1820Temp4;
+  ds1820Temp4Struct.available = true;
+  ds1820Temp5Struct.value = (uint32_t)ds1820Temp5;
+  ds1820Temp5Struct.available = true;
+  ds1820Temp6Struct.value = (uint32_t)ds1820Temp6;
+  ds1820Temp6Struct.available = true;
+  ds1820Temp7Struct.value = (uint32_t)ds1820Temp7;
+  ds1820Temp7Struct.available = true;
+  ds1820Temp8Struct.value = (uint32_t)ds1820Temp8;
+  ds1820Temp8Struct.available = true;
 #endif
 
 //  test1.value = oXs_MS5611.varioData.absoluteAlt.value/10 ;
@@ -2001,6 +2043,18 @@ void OutputToSerial(){
   Serial.print( ds1820Temp1 );
   Serial.print(F(" ;T2="));    
   Serial.print( ds1820Temp2 );
+  Serial.print(F(" ;T3="));    
+  Serial.print( ds1820Temp3 );
+  Serial.print(F(" ;T4="));    
+  Serial.print( ds1820Temp4 );
+  Serial.print(F(" ;T5="));    
+  Serial.print( ds1820Temp5 );
+  Serial.print(F(" ;T6="));    
+  Serial.print( ds1820Temp6 );
+  Serial.print(F(" ;T7="));    
+  Serial.print( ds1820Temp7 );
+  Serial.print(F(" ;T8="));    
+  Serial.print( ds1820Temp8 );
 #endif
 
 #ifdef HOTT

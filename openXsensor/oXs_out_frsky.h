@@ -287,6 +287,12 @@ extern struct ONE_MEASUREMENT roll ;
 
 extern struct ONE_MEASUREMENT ds1820Temp1Struct ;
 extern struct ONE_MEASUREMENT ds1820Temp2Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp3Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp4Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp5Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp6Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp7Struct ;
+extern struct ONE_MEASUREMENT ds1820Temp8Struct ;
 
 #ifdef MEASURE_RPM
 extern volatile uint16_t RpmValue ;
